@@ -1,0 +1,49 @@
+# https://developers.home-assistant.io/docs/apps/configuration
+name: Rancher
+version: "1.0.0"
+slug: rancher
+description: >-
+  Rancher Kubernetes management platform. Deploy and manage Kubernetes clusters
+  from the official rancher/rancher image with Home Assistant Ingress.
+url: "https://github.com/haos-rancher/haos-rancher/tree/main/rancher"
+arch:
+  - aarch64
+  - amd64
+startup: services
+init: false
+advanced: true
+stage: experimental
+panel_icon: mdi:kubernetes
+panel_title: Rancher
+host_network: true
+ingress: true
+ingress_port: 8099
+ingress_stream: true
+hassio_api: true
+hassio_role: manager
+docker_api: true
+full_access: true
+map:
+  - type: addon_config
+    read_only: false
+ports:
+  80/tcp: null
+  443/tcp: null
+ports_description:
+  80/tcp: Rancher HTTP (optional direct host access)
+  443/tcp: Rancher HTTPS (optional direct host access)
+watchdog: "http://[HOST]:[PORT:8099]/"
+options:
+  log_level: info
+  rancher_version: stable
+  bootstrap_password: ""
+  server_url: ""
+  http_port: 18080
+  https_port: 18443
+schema:
+  log_level: list(trace|debug|info|notice|warning|error|fatal)?
+  rancher_version: str
+  bootstrap_password: password?
+  server_url: url?
+  http_port: port
+  https_port: port

@@ -1,0 +1,24 @@
+name: Build apps
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    name: Build Rancher app
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Build app
+        uses: home-assistant/builder@master
+        with:
+          args: |
+            --target rancher
+            --amd64
+            --aarch64
+            --test

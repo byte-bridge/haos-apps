@@ -1,0 +1,6 @@
+#!/usr/bin/with-contenv bashio
+# ==============================================================================
+# HAOS Rancher - stop the Rancher container on service shutdown
+# ==============================================================================
+bashio::log.info "Stopping Rancher container..."
+docker stop hassio-rancher >/dev/null 2>&1 || true

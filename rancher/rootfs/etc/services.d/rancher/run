@@ -1,0 +1,44 @@
+#!/usr/bin/with-contenv bashio
+# ==============================================================================
+# HAOS Rancher - runs the official rancher/rancher container
+# ==============================================================================
+declare -a docker_args
+declare bootstrap_password
+declare http_port
+declare https_port
+declare rancher_version
+declare server_url
+
+bashio::log.info "Starting Rancher container..."
+
+rancher_version="$(bashio::config 'rancher_version')"
+http_port="$(bashio::config 'http_port')"
+https_port="$(bashio::config 'https_port')"
+
+docker_args+=(
+    run
+    --rm
+    --name hassio-rancher
+    --privileged
+    --pull always
+    -v hassio_addon_rancher_data:/var/lib/rancher
+    -p "127.0.0.1:${http_port}:80"
+    -p "127.0.0.1:${https_port}:443"
+)
+
+if bashio::config.has_value 'bootstrap_password'; then
+    bootstrap_password="$(bashio::config 'bootstrap_password')"
+    docker_args+=(-e "CATTLE_BOOTSTRAP_PASSWORD=${bootstrap_password}")
+fi
+
+if bashio::config.has_value 'server_url'; then
+    server_url="$(bashio::config 'server_url')"
+    docker_args+=(-e "CATTLE_SERVER_URL=${server_url}")
+fi
+
+docker_args+=("rancher/rancher:${rancher_version}")
+
+bashio::log.info "Launching rancher/rancher:${rancher_version}..."
+
+docker rm -f hassio-rancher >/dev/null 2>&1 || true
+exec docker "${docker_args[@]}"
