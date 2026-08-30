@@ -30,7 +30,7 @@ See [app configuration docs](https://developers.home-assistant.io/docs/apps/conf
 
 Base image options:
 
-- `ghcr.io/hassio-addons/base` — community base with s6-overlay and bashio (recommended for scripted apps)
+- `ghcr.io/hassio-addons/base` — community base with s6-overlay and bashio (recommended for scripted apps). Pin a version tag; CI syncs it from https://github.com/hassio-addons/app-base/releases
 - `ghcr.io/home-assistant/{arch}-base` — official Home Assistant base
 - Upstream image via `image:` + `legacy: true` in `config.yaml`
 

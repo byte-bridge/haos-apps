@@ -59,7 +59,7 @@ See `docs/ADDING_AN_APP.md` for the full checklist.
 
 ### Base images
 
-- **hassio-addons/base** — s6-overlay + bashio (used by `rancher/`)
+- **hassio-addons/base** — s6-overlay + bashio (used by `rancher/`). Pin a release tag (`ghcr.io/hassio-addons/base:21.0.3`). `.github/workflows/sync-app-base.yaml` bumps it from [app-base releases](https://github.com/hassio-addons/app-base/releases).
 - **home-assistant/{arch}-base** — official HA base
 - **Upstream image** — use `image:` + `legacy: true` + `init: false`
 

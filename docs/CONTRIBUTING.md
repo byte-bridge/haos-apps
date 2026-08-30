@@ -34,3 +34,5 @@ Include in the PR description:
 ## CI
 
 GitHub Actions builds all apps on push/PR using the [Home Assistant builder](https://github.com/home-assistant/builder). Builds must pass before merge.
+
+The **Sync hassio-addons/app-base** workflow runs weekly (and on demand). It reads the latest [app-base](https://github.com/hassio-addons/app-base) release and opens a PR that bumps `ARG BUILD_FROM=ghcr.io/hassio-addons/base:…` in every Dockerfile.

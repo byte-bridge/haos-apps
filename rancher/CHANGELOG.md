@@ -4,6 +4,24 @@ All notable changes to this project are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.0.5] - 2026-08-30
+
+### Changed
+
+- Revert HAOS-specific k3s workarounds (`--cgroupns host`, tmpfs, ulimits, `CONTAINERD_SNAPSHOTTER=native`) and match the official Docker run flags again.
+
+## [1.0.4] - 2026-08-30
+
+### Changed
+
+- Pin `ghcr.io/hassio-addons/base:21.0.3` ([app-base](https://github.com/hassio-addons/app-base)) and drop redundant `jq` (provided by the base image). Weekly GitHub Action keeps the pin current.
+
+## [1.0.3] - 2026-08-30
+
+### Changed
+
+- Align Docker launch with the official single-node install Option E (`--no-cacerts`). Ingress already terminates TLS, so certificates are not mounted.
+
 ## [1.0.2] - 2026-08-30
 
 ### Fixed

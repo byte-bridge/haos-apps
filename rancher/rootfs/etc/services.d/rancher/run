@@ -23,22 +23,15 @@ if bashio::config.true 'reset_data'; then
     bashio::log.warning "Disable reset_data in app options after this start succeeds"
 fi
 
-# k3s-in-Docker needs privileged + writable cgroup, tmpfs for /run, and a
-# non-overlay snapshotter because HAOS stores volumes on overlayfs.
+# Official single-node Docker install (Option E — no certificate):
+# https://ranchermanager.docs.rancher.com/getting-started/installation-and-upgrade/other-installation-methods/rancher-on-a-single-node-with-docker/
+#   docker run --privileged -p 80:80 -p 443:443 rancher/rancher --no-cacerts
+# Home Assistant Ingress terminates TLS, so we do not mount certs.
 docker_args+=(
     run
     --name hassio-rancher
-    --hostname rancher
     --privileged
-    --cgroupns host
-    --security-opt apparmor=unconfined
-    --security-opt seccomp=unconfined
-    --tmpfs /run
-    --tmpfs /var/run
-    --ulimit nofile=65535:65535
-    --ulimit nproc=65535
     --pull always
-    -e CONTAINERD_SNAPSHOTTER=native
     -v hassio_addon_rancher_data:/var/lib/rancher
     -p "127.0.0.1:${http_port}:80"
     -p "127.0.0.1:${https_port}:443"
@@ -54,7 +47,7 @@ if bashio::config.has_value 'server_url'; then
     docker_args+=(-e "CATTLE_SERVER_URL=${server_url}")
 fi
 
-docker_args+=("rancher/rancher:${rancher_version}")
+docker_args+=("rancher/rancher:${rancher_version}" --no-cacerts)
 
 bashio::log.info "Launching rancher/rancher:${rancher_version}..."
 

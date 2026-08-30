@@ -1,0 +1,59 @@
+name: Sync hassio-addons/app-base
+
+on:
+  schedule:
+    - cron: "17 8 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sync:
+    name: Bump ghcr.io/hassio-addons/base
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Resolve latest app-base release
+        id: base
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="$(gh api repos/hassio-addons/app-base/releases/latest --jq .tag_name)"
+          tag="${tag#v}"
+          echo "tag=${tag}" >> "${GITHUB_OUTPUT}"
+          echo "Latest hassio-addons/app-base: ${tag}"
+
+      - name: Update Dockerfiles
+        env:
+          TAG: ${{ steps.base.outputs.tag }}
+        run: |
+          mapfile -t files < <(git grep -l 'ghcr.io/hassio-addons/base:' -- '*Dockerfile' '*Dockerfile.*' || true)
+          if [[ ${#files[@]} -eq 0 ]]; then
+            echo "No Dockerfiles pin hassio-addons/base"
+            exit 0
+          fi
+          for file in "${files[@]}"; do
+            sed -i -E "s|(ghcr.io/hassio-addons/base:)[0-9]+\.[0-9]+\.[0-9]+|\1${TAG}|g" "${file}"
+          done
+          git diff -- "${files[@]}"
+
+      - name: Create pull request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ github.token }}
+          branch: chore/sync-app-base
+          delete-branch: true
+          commit-message: |
+            chore: bump hassio-addons/base to ${{ steps.base.outputs.tag }}
+          title: "chore: bump hassio-addons/base to ${{ steps.base.outputs.tag }}"
+          body: |
+            Bumps `ghcr.io/hassio-addons/base` to [${{ steps.base.outputs.tag }}](https://github.com/hassio-addons/app-base/releases/tag/v${{ steps.base.outputs.tag }}) from [hassio-addons/app-base](https://github.com/hassio-addons/app-base).
+
+            This PR is opened weekly (or on demand) by `.github/workflows/sync-app-base.yaml`.
+          labels: |
+            dependencies
+            docker

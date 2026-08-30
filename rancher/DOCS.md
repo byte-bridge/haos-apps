@@ -1,6 +1,8 @@
 # Rancher App for Home Assistant
 
-This app deploys [Rancher Manager](https://www.rancher.com/) on Home Assistant OS using the official [`rancher/rancher`](https://hub.docker.com/r/rancher/rancher) container image.
+This app deploys [Rancher Manager](https://www.rancher.com/) on Home Assistant OS using the [single-node Docker install](https://ranchermanager.docs.rancher.com/getting-started/installation-and-upgrade/other-installation-methods/rancher-on-a-single-node-with-docker/). That method is for development and testing only.
+
+Home Assistant Ingress already terminates TLS, so this app uses **Option E** (`--no-cacerts`) and does not mount certificates.
 
 ## Warning
 
@@ -84,11 +86,17 @@ By default, Rancher is available through **Home Assistant Ingress** only. To exp
 | 80   | Rancher HTTP       |
 | 443  | Rancher HTTPS      |
 
-When enabling direct access, map them to non-conflicting host ports (for example `8080` and `8443`).
+When enabling direct access, map them to non-conflicting host ports (for example `8080` and `8443`). Official docs use the same remap when Rancher and an ingress controller share a node.
+
+## TLS / certificates
+
+No custom certificates are required. Ingress handles HTTPS. The Rancher container is started with `--no-cacerts` so it does not generate its own CA (same as Option E in the Docker install guide).
+
+Do not enable Let's Encrypt (`--acme-domain`) on this app: port 80 is not published to the internet, and Ingress already provides TLS.
 
 ## Data persistence
 
-Rancher data is stored in the Docker volume `hassio_addon_rancher_data` on your Home Assistant host. This survives app restarts and upgrades.
+Rancher data is stored in the Docker volume `hassio_addon_rancher_data`, mounted at `/var/lib/rancher` as described in [persistent data for Docker installs](https://ranchermanager.docs.rancher.com/reference-guides/single-node-rancher-in-docker/advanced-options).
 
 ## Troubleshooting
 
@@ -105,13 +113,13 @@ Rancher data is stored in the Docker volume `hassio_addon_rancher_data` on your 
 
 ### `k3s exited with: exit status 2`
 
-Embedded k3s (inside `rancher/rancher`) failed. Common on HAOS because of cgroup v2 and overlayfs volumes. After updating to 1.0.2+:
+Embedded k3s (inside `rancher/rancher`) failed to start. Try:
 
-1. Enable **Reset Rancher data** once.
-2. Start the app and wait several minutes.
-3. Disable **Reset Rancher data**.
+1. Enable **Reset Rancher data** once, start the app, wait several minutes, then disable it.
+2. Ensure the host has at least 4 GB RAM free.
+3. Check app logs after the container stops (includes recent Rancher and k3s logs).
 
-If it still fails, the app logs should include a `containerd.log` / `k3s.log` dump after the container stops.
+If it still fails, Rancher’s single-node Docker install is not officially supported on all HAOS setups.
 
 ### Ingress shows a blank page or connection errors
 

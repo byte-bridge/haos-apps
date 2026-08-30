@@ -1,16 +1,17 @@
-ARG BUILD_FROM=ghcr.io/hassio-addons/base:17.2.1
+# Keep in sync with https://github.com/hassio-addons/app-base/releases
+# Updated by .github/workflows/sync-app-base.yaml
+ARG BUILD_FROM=ghcr.io/hassio-addons/base:21.0.3
 # hadolint ignore=DL3006
 FROM ${BUILD_FROM}
 
 # Set shell
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
-# Install runtime dependencies
+# docker-cli and nginx are extra; jq is already in app-base.
 # Alpine nginx ships http.d/default.conf listening on :80; remove it so host_network
 # does not collide with Home Assistant on the host.
 RUN apk add --no-cache \
     docker-cli \
-    jq \
     nginx \
   && rm -f /etc/nginx/http.d/default.conf
 
