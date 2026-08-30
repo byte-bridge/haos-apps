@@ -6,7 +6,7 @@ alwaysApply: false
 
 # Home Assistant app files
 
-Packaging conventions follow [home-assistant/apps-example](https://github.com/home-assistant/apps-example). That example is a small in-container service. Privileged wrappers (`rancher/`) keep the same files but start an upstream image via Docker API.
+Packaging conventions follow [home-assistant/apps-example](https://github.com/home-assistant/apps-example). Runtime behavior (native vs Docker wrapper) is defined in each app’s `AGENTS.md`.
 
 ## config.yaml
 

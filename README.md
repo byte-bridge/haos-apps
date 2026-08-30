@@ -27,25 +27,27 @@ See [docs/INSTALL.md](docs/INSTALL.md) for local install and per-app setup notes
 ```
 repository.yaml          # Required — registers this repo with Home Assistant
 README.md
-AGENTS.md                # Instructions for AI agents working in this repo
+AGENTS.md                # Repo-wide agent instructions
 rancher/                 # One folder per app (slug matches config.yaml)
+  AGENTS.md              # App-specific agent instructions (nested)
   config.yaml
   Dockerfile
   DOCS.md
   rootfs/
-templates/app/           # Scaffold for new apps
+templates/app/           # Scaffold for new apps (includes AGENTS.md)
 docs/                    # Shared documentation
-.cursor/rules/           # Cursor agent rules
+.cursor/rules/           # Cursor project rules (.mdc)
 ```
 
 ## Adding a new app
 
 1. Copy `templates/app/` to a new top-level folder (e.g. `my-app/`).
 2. Rename `config.yaml.example` to `config.yaml`.
-2. Update `config.yaml` — especially `name`, `slug`, `version`, and `description`.
-3. Implement `Dockerfile` and `rootfs/` for your service.
-4. Add the app to the table in this README.
-5. Open a PR.
+3. Update `config.yaml` — especially `name`, `slug`, `version`, and `description`.
+4. Fill in `AGENTS.md` for that app (runtime pattern, key files, security).
+5. Implement `Dockerfile` and `rootfs/` for your service.
+6. Add the app to the table in this README.
+7. Open a PR.
 
 See [docs/ADDING_AN_APP.md](docs/ADDING_AN_APP.md) for the full checklist.
 
@@ -55,7 +57,7 @@ See [docs/ADDING_AN_APP.md](docs/ADDING_AN_APP.md) for the full checklist.
 - [Official apps-example](https://github.com/home-assistant/apps-example) — packaging blueprint (layout, files, CI)
 - [Home Assistant ADRs](docs/HOME_ASSISTANT_ADRS.md) — install methods (HAOS vs Supervised vs Container)
 - [Contributing](docs/CONTRIBUTING.md)
-- [Agent instructions](AGENTS.md)
+- [Agent instructions](AGENTS.md) — root; per-app files under `<slug>/AGENTS.md` (e.g. [rancher](rancher/AGENTS.md))
 
 ## Warning
 

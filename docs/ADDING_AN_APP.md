@@ -56,6 +56,7 @@ Scripts must use `#!/usr/bin/with-contenv bashio` and LF line endings.
 
 ### 4. Documentation (required for publication)
 
+- `AGENTS.md` — agent instructions for this app (from the template; fill in pattern and key files)
 - `README.md` — short intro shown in the app store
 - `DOCS.md` — full user documentation
 - `CHANGELOG.md` — version history
@@ -69,6 +70,7 @@ Scripts must use `#!/usr/bin/with-contenv bashio` and LF line endings.
 ### 6. Register the app
 
 - Add a row to the apps table in the root `README.md`
+- Add a row under **Existing apps** in root `AGENTS.md`
 - CI builds all app folders automatically via `--all`
 
 ## App patterns in this repo

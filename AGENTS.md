@@ -36,7 +36,9 @@ Apps that start extra host containers (Rancher) already sit outside what Home As
 
 ```
 repository.yaml       # HA repo manifest — do not put apps inside subfolders
+AGENTS.md             # Repo-wide agent instructions (this file)
 <app-slug>/           # One folder per app at repo root
+  AGENTS.md           # App-specific agent instructions (nested; auto-applies in that tree)
   config.yaml         # App manifest (required)
   Dockerfile          # Build instructions
   DOCS.md             # User documentation
@@ -47,38 +49,49 @@ repository.yaml       # HA repo manifest — do not put apps inside subfolders
   rootfs/             # s6-overlay scripts (if using hassio-addons base)
 templates/app/        # Scaffold for new apps — copy, don't edit in place
 docs/                 # Shared docs (install, contributing, adding apps)
-.cursor/rules/        # Cursor-specific rules
+.cursor/rules/        # Cursor project rules (always-apply + glob-scoped)
 ```
 
 **Important:** Home Assistant expects app folders at the repository root, not under `apps/`. Do not nest apps in subdirectories.
+
+### Agent instructions (Cursor)
+
+Per [Cursor Rules](https://cursor.com/docs/rules):
+
+| Layer | Location | Scope |
+|-------|----------|--------|
+| Repo-wide | `AGENTS.md` (root) | Always available for the project |
+| Per app | `<slug>/AGENTS.md` | Applies when working in that folder or its children |
+| Project rules | `.cursor/rules/*.mdc` | `alwaysApply` or `globs` (packaging conventions) |
+
+When editing an app, follow **root + that app’s** `AGENTS.md`. Nested instructions take precedence on conflicts.
 
 ## Adding a new app
 
 1. `cp -r templates/app <slug>` then `mv <slug>/config.yaml.example <slug>/config.yaml`
 2. Update `config.yaml` (`name`, `slug`, `version`, `description`, `url`)
-3. Implement `Dockerfile` and `rootfs/`
-4. Write `DOCS.md` and `CHANGELOG.md`
-5. Add row to root `README.md` apps table
-6. Test on HAOS (copy folder to `/addons/<slug>`, check for updates)
+3. Fill in `<slug>/AGENTS.md` (replace the scaffold stub)
+4. Implement `Dockerfile` and `rootfs/`
+5. Write `DOCS.md` and `CHANGELOG.md`
+6. Add rows to root `README.md` and this file’s **Existing apps** table
+7. Test on HAOS (copy folder to `/addons/<slug>`, check for updates)
 
 See `docs/ADDING_AN_APP.md` for the full checklist.
 
 ## Official blueprint: apps-example
 
-The Home Assistant template is [home-assistant/apps-example](https://github.com/home-assistant/apps-example). Use it for **repository and app packaging**, not for Rancher’s Docker/k3s runtime.
+The Home Assistant template is [home-assistant/apps-example](https://github.com/home-assistant/apps-example). Use it for **repository and app packaging**, not for privileged host-Docker runtimes.
 
 **Copy from apps-example**
 
-- Repo layout: `repository.yaml` plus one folder per app at the root (`example/` → our `rancher/`)
+- Repo layout: `repository.yaml` plus one folder per app at the root (`example/` → our `<slug>/`)
 - App files: `config.yaml`, `Dockerfile`, `DOCS.md`, `CHANGELOG.md`, `icon.png` / `logo.png`, `translations/en.yaml`, `rootfs/etc/services.d/.../run|finish`
 - `slug` must match the folder name; `init: false` when using s6
 - `image:` in `config.yaml` when publishing to a container registry (GHCR)
 - CI: `.github/workflows/build-app.yaml`, `builder.yaml`, `lint.yaml`
 - Optional: `apparmor.txt` for a custom AppArmor profile
 
-**Do not copy from apps-example for rancher/**
-
-The example app is a tiny in-container program. Rancher is a **privileged Docker wrapper** (`docker run rancher/rancher`). For that, follow `rancher/` in this repo and the [single-node Docker install](https://ranchermanager.docs.rancher.com/getting-started/installation-and-upgrade/other-installation-methods/rancher-on-a-single-node-with-docker/). apps-example has no `docker_api`, Ingress nginx, or `--privileged` host container.
+App-specific runtime rules (e.g. Rancher’s Docker wrapper) live in that app’s `AGENTS.md`, not here.
 
 ## Conventions
 
@@ -113,14 +126,11 @@ Apps needing Docker API or privileged access must:
 
 ## Existing apps
 
-### rancher/
+| App | Agent instructions | Pattern |
+|-----|-------------------|---------|
+| `rancher/` | [rancher/AGENTS.md](rancher/AGENTS.md) | Privileged Docker wrapper + Ingress nginx |
 
-Wraps the official `rancher/rancher` Docker image via host Docker API.
-
-- **Pattern:** Docker orchestration wrapper + nginx ingress proxy
-- **Requires:** `full_access`, `docker_api`, `host_network`, Protection mode off
-- **Key files:** `rootfs/etc/services.d/rancher/run`, `rootfs/etc/services.d/nginx/run`
-- **Upstream:** https://www.rancher.com/quick-start
+Add a row here when you add an app, and ship `<slug>/AGENTS.md` with the copy from `templates/app/`.
 
 ## What NOT to do
 
