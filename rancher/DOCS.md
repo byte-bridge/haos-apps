@@ -14,7 +14,7 @@ Home Assistant does not officially support running third-party containers on HAO
 2. Add this repository under **Settings → Apps → App store → ⋮ → Repositories**:
 
    ```
-   https://github.com/byte-bridge/haos-rancher
+   https://github.com/byte-bridge/haos-apps
    ```
 
 3. Click **Check for updates** in the app store.

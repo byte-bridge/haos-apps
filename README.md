@@ -1,48 +1,60 @@
-# HAOS Rancher
+# HAOS Apps
 
-Home Assistant app repository that runs [Rancher](https://www.rancher.com/) on [Home Assistant OS](https://www.home-assistant.io/installation/).
+Home Assistant [app repository](https://developers.home-assistant.io/docs/apps/) for running third-party services on [Home Assistant OS](https://www.home-assistant.io/installation/).
 
-Rancher is an open-source Kubernetes management platform. This app deploys the official `rancher/rancher` container on your Home Assistant host and exposes the UI through Home Assistant Ingress.
+Each app lives in its own top-level folder with a `config.yaml`. Home Assistant discovers apps by scanning this repository for those folders.
 
-## Requirements
+## Apps
 
-- Home Assistant OS or Supervised installation
-- At least **4 GB RAM** (Rancher requirement)
-- Protection mode **disabled** for this app
-- Advanced Mode enabled in your Home Assistant profile
+| App | Description | Docs |
+|-----|-------------|------|
+| [rancher](rancher/) | Rancher Kubernetes management platform | [DOCS](rancher/DOCS.md) |
 
-## Installation
+## Install
 
-1. Copy this repository to your Home Assistant `addons` folder, or add it as a custom repository in **Settings → Apps → App store → ⋮ → Repositories**:
-
-   ```
-   https://github.com/byte-bridge/haos-rancher
-   ```
-
-2. Go to **Settings → Apps → App store** and click **Check for updates**.
-3. Install **Rancher** from the **Local apps** or repository section.
-4. Open the app configuration page and **disable Protection mode**.
-5. Set a bootstrap password and start the app.
-6. Open the Rancher UI via **Open web UI** (Ingress).
-
-## Repository structure
+Add this repository in **Settings → Apps → App store → ⋮ → Repositories**:
 
 ```
-repository.yaml
-rancher/
+https://github.com/byte-bridge/haos-apps
+```
+
+Then click **Check for updates** and install the app you want.
+
+See [docs/INSTALL.md](docs/INSTALL.md) for local install and per-app setup notes.
+
+## Repository layout
+
+```
+repository.yaml          # Required — registers this repo with Home Assistant
+README.md
+AGENTS.md                # Instructions for AI agents working in this repo
+rancher/                 # One folder per app (slug matches config.yaml)
   config.yaml
   Dockerfile
   DOCS.md
-  README.md
-  CHANGELOG.md
   rootfs/
-  translations/
+templates/app/           # Scaffold for new apps
+docs/                    # Shared documentation
+.cursor/rules/           # Cursor agent rules
 ```
 
-## Documentation
+## Adding a new app
 
-See [rancher/DOCS.md](rancher/DOCS.md) for configuration options and troubleshooting.
+1. Copy `templates/app/` to a new top-level folder (e.g. `my-app/`).
+2. Rename `config.yaml.example` to `config.yaml`.
+2. Update `config.yaml` — especially `name`, `slug`, `version`, and `description`.
+3. Implement `Dockerfile` and `rootfs/` for your service.
+4. Add the app to the table in this README.
+5. Open a PR.
+
+See [docs/ADDING_AN_APP.md](docs/ADDING_AN_APP.md) for the full checklist.
+
+## Development
+
+- [Home Assistant Apps docs](https://developers.home-assistant.io/docs/apps/)
+- [Contributing](docs/CONTRIBUTING.md)
+- [Agent instructions](AGENTS.md)
 
 ## Warning
 
-Running Rancher on Home Assistant OS is an advanced use case. Home Assistant does not officially support running arbitrary third-party containers on HAOS. Use at your own risk.
+Apps in this repository may require **Protection mode** to be disabled and grant elevated host access. Home Assistant does not officially support arbitrary third-party containers on HAOS. Use at your own risk.

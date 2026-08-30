@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "hindsight": {
+      "url": "https://hindsight.crndl.com/mcp/cursor/",
+      "headers": {
+        "Authorization": "Bearer z@@6z2vL18toV0V@^1ReO8zAiFT&47ki6rlJ"
+      }
+    }
+  }
+}

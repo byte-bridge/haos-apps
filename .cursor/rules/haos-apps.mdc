@@ -1,0 +1,30 @@
+---
+description: Core conventions for the haos-apps Home Assistant app repository
+alwaysApply: true
+---
+
+# HAOS Apps repository
+
+This is a multi-app Home Assistant repository at `github.com/byte-bridge/haos-apps`.
+
+## Structure
+
+- App folders live at the **repo root** (e.g. `rancher/`), each with a `config.yaml`
+- `repository.yaml` registers the repo with Home Assistant
+- `templates/app/` is the scaffold for new apps — copy it, don't modify in place (`config.yaml.example` → `config.yaml`)
+- Shared docs go in `docs/`
+
+## When adding or editing an app
+
+1. Read `AGENTS.md` and `docs/ADDING_AN_APP.md`
+2. Follow [HA app configuration](https://developers.home-assistant.io/docs/apps/configuration)
+3. Use `#!/usr/bin/with-contenv bashio` for shell scripts with LF line endings
+4. Update the apps table in root `README.md`
+5. Document security requirements (Protection mode, privileged access) in `DOCS.md`
+
+## Code style
+
+- Minimal, focused diffs — one app per change when possible
+- Match existing patterns in sibling apps (see `rancher/` for Docker wrapper pattern)
+- Don't pin Alpine package versions unless required
+- Don't commit secrets or create git commits unless asked

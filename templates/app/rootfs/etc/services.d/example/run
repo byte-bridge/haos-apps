@@ -1,0 +1,5 @@
+#!/usr/bin/with-contenv bashio
+bashio::log.info "Starting example service..."
+# Replace with your service:
+# exec /usr/bin/myservice
+exec sleep infinity

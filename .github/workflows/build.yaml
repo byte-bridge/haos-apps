@@ -8,17 +8,17 @@ on:
 
 jobs:
   build:
-    name: Build Rancher app
+    name: Build all apps
     runs-on: ubuntu-latest
     steps:
       - name: Check out the repository
         uses: actions/checkout@v4
 
-      - name: Build app
+      - name: Build apps
         uses: home-assistant/builder@master
         with:
           args: |
-            --target rancher
+            --all
             --amd64
             --aarch64
             --test
