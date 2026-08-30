@@ -1,0 +1,25 @@
+# Home Assistant Ingress gateway (172.30.32.2) → Rancher HTTP on localhost.
+# Headers match Rancher’s layer-7 nginx LB guide:
+# https://ranchermanager.docs.rancher.com/v2.15/how-to-guides/advanced-user-guides/configure-layer-7-nginx-load-balancer
+{
+	admin off
+}
+
+:8099 {
+	@ingress remote_ip 172.30.32.2
+	handle @ingress {
+		reverse_proxy 127.0.0.1:80 {
+			header_up Host {host}
+			header_up X-Real-IP {remote_host}
+			header_up X-Forwarded-For {remote_host}
+			header_up X-Forwarded-Proto https
+			header_up X-Forwarded-Port 443
+			header_up X-Ingress-Path {http.request.header.X-Ingress-Path}
+			transport http {
+				read_timeout 900s
+				write_timeout 900s
+			}
+		}
+	}
+	respond "Forbidden" 403
+}

@@ -4,51 +4,49 @@ Applies when working under `rancher/`. Combine with the root [AGENTS.md](../AGEN
 
 ## What this app is
 
-Privileged **Docker orchestration wrapper** around the official `rancher/rancher` image, plus nginx for Home Assistant Ingress.
+Thin **Home Assistant wrapper** around the upstream [`rancher/rancher`](https://hub.docker.com/r/rancher/rancher) image. Rancher and embedded k3s run **inside the app container** — no host `docker run`, no hassio-addons base, no s6.
 
 - Upstream: [single-node Docker install](https://ranchermanager.docs.rancher.com/getting-started/installation-and-upgrade/other-installation-methods/rancher-on-a-single-node-with-docker/) (dev/test only)
-- Quick start: https://www.rancher.com/quick-start
+- Upstream packaging: [rancher/rancher `package/`](https://github.com/rancher/rancher/tree/main/package)
 - User docs: [DOCS.md](DOCS.md)
 
-## Do not copy apps-example runtime
+## Architecture
 
-[home-assistant/apps-example](https://github.com/home-assistant/apps-example) is the packaging blueprint only. That example runs a tiny program **inside** the app container. This app starts `rancher/rancher` on the **host Docker** API (`docker run … --privileged`). apps-example has no `docker_api`, Ingress nginx, or host Rancher container.
+```
+Supervisor app container (FROM rancher/rancher:stable)
+├── haos-entrypoint.sh     # /data bind, options, reset_data, k3s compat env
+├── Caddy on :8099         # HA Ingress gateway → 127.0.0.1:80 + proxy headers
+└── entrypoint.sh (upstream) → catatonit → rancher + embedded k3s
+```
+
+Persistent data: `/data/rancher` bind-mounted to `/var/lib/rancher` (Supervisor `/data` volume).
 
 ## Capabilities (required)
 
 | Flag / option | Why |
 |---------------|-----|
-| `advanced: true` | Privileged / Docker API app |
-| `docker_api: true` | Start/manage host Rancher container |
-| `full_access: true` | Hardware / host access |
-| `host_network: true` | Rancher networking |
-| Protection mode **off** | Required; enforced in cont-init |
+| `advanced: true` | Privileged Rancher / k3s workload |
+| `full_access: true` | Required for k3s; Protection mode must be off |
+| `hassio_api: true` | Clear `reset_data` via Supervisor API after wipe |
+| Protection mode **off** | Enforced in entrypoint |
 
-In cont-init: call `bashio::require.unprotected`. Keep the unsupported-HAOS warning in `DOCS.md`.
-
-## Architecture
-
-1. **cont-init** (`rootfs/etc/cont-init.d/`) — require unprotected mode, prepare nginx / Rancher options
-2. **rancher service** (`rootfs/etc/services.d/rancher/run`) — `docker run` / attach to host container from options (`rancher_version`, ports, bootstrap password, etc.)
-3. **nginx service** (`rootfs/etc/services.d/nginx/run`) — Ingress on `8099`, allow only `172.30.32.2`, proxy to Rancher HTTP port
-
-Persistent data lives on the host volume used by the Rancher container; app options are in `/data/options.json`.
+Do **not** use `docker_api` or `host_network` — removed in 2.0.0.
 
 ## Key files
 
+- `Dockerfile` — `FROM rancher/rancher:${RANCHER_TAG}` + static Caddy/jq
+- `rootfs/usr/local/bin/haos-entrypoint.sh` — main entrypoint
+- `rootfs/usr/local/lib/haos-rancher/options.sh` — read `/data/options.json`, Supervisor API
+- `rootfs/etc/caddy/Caddyfile` — Ingress on 8099 (allow `172.30.32.2`)
 - `config.yaml` — manifest (`slug: rancher` must match folder)
-- `Dockerfile` — hassio-addons base + docker CLI + nginx
-- `rootfs/etc/services.d/rancher/run` | `finish`
-- `rootfs/etc/services.d/nginx/run`
-- `rootfs/etc/nginx/` — Ingress proxy config
-- `rootfs/etc/cont-init.d/rancher.sh`, `nginx.sh`
 
 ## Conventions for this app
 
-- Scripts: `#!/usr/bin/with-contenv bashio`, LF, executable
-- Do not commit bootstrap passwords or `.env` secrets
-- Prefer matching existing `docker run` flags and nginx Ingress patterns over inventing new ones
+- Keep the wrapper **thin** — prefer upstream `entrypoint.sh` and env vars over reimplementing Rancher logic
+- Bump `RANCHER_TAG` in `Dockerfile` when shipping a new upstream Rancher release
+- `k3s_haos_compat` sets `CONTAINERD_SNAPSHOTTER=native` for overlay-backed HA `/data`
 - Target **HAOS only** — do not add Supervised / cgroup v1 workarounds
+- Do not commit bootstrap passwords
 
 ## Versioning
 

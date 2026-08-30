@@ -77,9 +77,8 @@ Scripts must use `#!/usr/bin/with-contenv bashio` and LF line endings.
 
 | Pattern | Example | When to use |
 |---------|---------|-------------|
-| **Wrapper** | `rancher/` | Run an upstream Docker image via host Docker API |
-| **Native** | `templates/app/` | Install a binary or run a service directly in the app container |
-| **Ingress proxy** | `rancher/` | nginx on port 8099 proxying to the service |
+| **Upstream + thin HA layer** | `rancher/` | `FROM` an upstream image; add entrypoint, Ingress proxy, options |
+| **Native** | `templates/app/` | s6 + bashio service inside hassio-addons base |
 
 ## Security considerations
 

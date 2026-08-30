@@ -13,7 +13,7 @@ Then replace this file with app-specific agent instructions (pattern, key files,
 
 This scaffold is a **native** in-container service (s6 + bashio), similar in packaging to [home-assistant/apps-example](https://github.com/home-assistant/apps-example). It is not a host Docker wrapper.
 
-If the new app needs `docker_api` / privileged host containers, follow `rancher/` instead of this runtime pattern, and document Protection mode and unsupported-HAOS warnings in `DOCS.md`.
+If the new app needs a privileged upstream container (like Rancher), follow `rancher/` — `FROM` the upstream image with a thin HA entrypoint — instead of this native s6 pattern.
 
 ## Versioning
 

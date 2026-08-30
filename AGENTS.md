@@ -91,7 +91,7 @@ The Home Assistant template is [home-assistant/apps-example](https://github.com/
 - CI: `.github/workflows/build-app.yaml`, `builder.yaml`, `lint.yaml`
 - Optional: `apparmor.txt` for a custom AppArmor profile
 
-App-specific runtime rules (e.g. Rancher’s Docker wrapper) live in that app’s `AGENTS.md`, not here.
+App-specific runtime rules (e.g. Rancher’s upstream image wrapper) live in that app’s `AGENTS.md`, not here.
 
 ## Conventions
 
@@ -111,9 +111,8 @@ App-specific runtime rules (e.g. Rancher’s Docker wrapper) live in that app’
 
 ### Base images
 
-- **hassio-addons/base** — s6-overlay + bashio (used by `rancher/`). Pin a release tag (`ghcr.io/hassio-addons/base:21.0.3`). `.github/workflows/sync-app-base.yaml` bumps it from [app-base releases](https://github.com/hassio-addons/app-base/releases).
-- **home-assistant/{arch}-base** — official HA base
-- **Upstream image** — use `image:` + `legacy: true` + `init: false`
+- **hassio-addons/base** — s6-overlay + bashio (used by `templates/app/`). Pin a release tag. `.github/workflows/sync-app-base.yaml` bumps it from [app-base releases](https://github.com/hassio-addons/app-base/releases).
+- **Upstream image** — `FROM rancher/rancher` (see `rancher/`) or `image:` + `legacy: true` + `init: false`
 
 ### Security-sensitive apps
 
@@ -158,7 +157,7 @@ One app per commit when possible. Repo-wide changes (CI, docs outside any app, `
 
 | App | Agent instructions | Pattern |
 |-----|-------------------|---------|
-| `rancher/` | [rancher/AGENTS.md](rancher/AGENTS.md) | Privileged Docker wrapper + Ingress nginx |
+| `rancher/` | [rancher/AGENTS.md](rancher/AGENTS.md) | Upstream `rancher/rancher` + thin Caddy Ingress |
 
 Add a row here when you add an app, and ship `<slug>/AGENTS.md` with the copy from `templates/app/`.
 

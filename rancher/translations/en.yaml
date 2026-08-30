@@ -1,25 +1,19 @@
 configuration:
   log_level:
     name: Log level
-    description: Controls the verbosity of add-on log output.
-  rancher_version:
-    name: Rancher version
-    description: Docker image tag for rancher/rancher (for example stable or v2.10.3).
+    description: Reserved for future use; Rancher logs go to the app log stream.
   bootstrap_password:
     name: Bootstrap password
     description: Initial password for the Rancher admin user. Leave empty to auto-generate.
   server_url:
     name: Server URL
     description: External URL Rancher should advertise. Set when using Ingress or a reverse proxy.
-  http_port:
-    name: HTTP port
-    description: Local port for Rancher HTTP (bound to 127.0.0.1).
-  https_port:
-    name: HTTPS port
-    description: Local port for Rancher HTTPS (bound to 127.0.0.1).
   reset_data:
     name: Reset Rancher data
     description: Wipe the Rancher data volume on the next start. The app turns this off automatically after the wipe.
+  k3s_haos_compat:
+    name: HAOS k3s compatibility
+    description: Set CONTAINERD_SNAPSHOTTER=native so embedded k3s can run on HAOS storage. Disable only for debugging.
 network:
-  80/TCP: Rancher HTTP (optional direct host access)
-  443/TCP: Rancher HTTPS (optional direct host access)
+  80/TCP: Rancher HTTP (optional direct access)
+  443/TCP: Rancher HTTPS (optional direct access)

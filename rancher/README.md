@@ -1,6 +1,6 @@
 # Rancher
 
-[Rancher](https://www.rancher.com/) is an open-source Kubernetes management platform. This Home Assistant app runs the official `rancher/rancher` Docker image on your Home Assistant host and exposes the web UI through Home Assistant Ingress.
+[Rancher](https://www.rancher.com/) is an open-source Kubernetes management platform. This Home Assistant app runs the upstream [`rancher/rancher`](https://hub.docker.com/r/rancher/rancher) image with a thin Caddy Ingress wrapper on port 8099.
 
 ## Quick start
 

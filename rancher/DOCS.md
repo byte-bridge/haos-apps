@@ -1,10 +1,10 @@
 # Rancher App for Home Assistant
 
-This app deploys [Rancher Manager](https://www.rancher.com/) on **Home Assistant OS** using the [single-node Docker install](https://ranchermanager.docs.rancher.com/getting-started/installation-and-upgrade/other-installation-methods/rancher-on-a-single-node-with-docker/). That method is for **development and testing only**, not production.
+This app runs the upstream [`rancher/rancher`](https://hub.docker.com/r/rancher/rancher) image on **Home Assistant OS** with a thin Ingress wrapper. It follows Rancher’s [single-node Docker install](https://ranchermanager.docs.rancher.com/getting-started/installation-and-upgrade/other-installation-methods/rancher-on-a-single-node-with-docker/) (dev/test only, not production).
 
-It is not aimed at [Home Assistant Supervised](https://github.com/home-assistant/architecture/blob/master/adr/0014-home-assistant-supervised.md). That install method was dropped in [architecture discussion #1198](https://github.com/home-assistant/architecture/discussions/1198) (deprecated from HA 2025.6). Use **Home Assistant OS** instead.
+The app container **is** `rancher/rancher` (see [`package/`](https://github.com/rancher/rancher/tree/main/package) upstream). A small Home Assistant entrypoint bind-mounts `/data/rancher` and starts [Caddy](https://caddyserver.com/) on port **8099** for Ingress. There is no nested `docker run` and no hassio-addons base image.
 
-Home Assistant Ingress is a [layer-7 proxy that terminates TLS](https://ranchermanager.docs.rancher.com/v2.15/how-to-guides/advanced-user-guides/configure-layer-7-nginx-load-balancer) in front of `rancher/rancher`. The container is started with `--no-cacerts` (Rancher Option B for a recognized CA / no default CA in the container). No PEM files are mounted.
+Home Assistant Ingress [terminates TLS](https://ranchermanager.docs.rancher.com/v2.15/how-to-guides/advanced-user-guides/configure-layer-7-nginx-load-balancer) in front of Rancher. The container runs with `--no-cacerts` (Option E). No PEM files are mounted.
 
 ## Requirements
 
@@ -17,16 +17,15 @@ From Rancher’s [installation requirements](https://ranchermanager.docs.rancher
 
 Also:
 
-- Linux host, **amd64** or **aarch64** (`rancher/rancher` is multi-arch)
-- Firefox or a Chromium-based browser for the UI
-- Enough RAM **on the HAOS machine** after Home Assistant itself is running
-- SSD storage is recommended (Rancher’s datastore is etcd inside the container)
+- **Home Assistant OS**, amd64 or aarch64
+- At least **4 GB RAM** free after Home Assistant
+- SSD-backed storage recommended (embedded etcd)
 
 ## Warning
 
-This app requires **Protection mode** to be disabled and grants **full hardware access** plus **Docker API** access. It is intended for advanced users who understand the security implications.
+This app requires **Protection mode** to be disabled and grants **full hardware access**. It runs a privileged Rancher/k3s workload inside the app container. Advanced users only.
 
-Home Assistant does not officially support running third-party containers on HAOS. Using this app may render your installation unsupported.
+Home Assistant does not officially support Rancher on HAOS. Using this app may render your installation unsupported.
 
 ## Installation
 
@@ -39,131 +38,95 @@ Home Assistant does not officially support running third-party containers on HAO
 
 3. Click **Check for updates** in the app store.
 4. Install **Rancher**.
-5. On the app configuration page, turn **Protection mode** off.
-6. Configure options (see below) and start the app.
+5. Turn **Protection mode** off on the app configuration page.
+6. Set a **bootstrap password**, then start the app.
+
+First boot can take **5–10 minutes**.
+
+## Upgrading from 1.x (Docker wrapper)
+
+Version **2.0.0** replaces the old design (hassio-addons base + host `docker run`) with a direct `FROM rancher/rancher` container.
+
+1. Update to **2.0.0** and rebuild/reinstall the app.
+2. Enable **Reset Rancher data** once and start (old data lived in Docker volume `hassio_addon_rancher_data`; new data is under app `/data/rancher`).
+3. Reconfigure bootstrap password and `server_url` if needed.
+
+There is no automatic migration from the old host volume.
 
 ## First login
 
-1. Open the Rancher UI via **Open web UI** in the app panel.
-2. Log in with:
-   - **Username:** `admin`
-   - **Password:** the bootstrap password you configured, or retrieve it from the app logs if left empty.
+1. Open **Open web UI** in the app panel.
+2. Log in with username **`admin`** and your bootstrap password.
 
-If you did not set a bootstrap password, Rancher generates one randomly. Check the app logs for:
-
-```
-Bootstrap Password:
-```
-
-You can also retrieve it from inside the running Rancher container:
+If bootstrap password was left empty, check app logs for `Bootstrap Password:` or run from an HAOS shell (container name varies):
 
 ```bash
-docker exec hassio-rancher kubectl get secret --namespace cattle-system bootstrap-secret -o go-template='{{.data.bootstrapPassword|base64decode}}{{ "\n" }}'
+docker exec "$(docker ps --filter name=_rancher --format '{{.Names}}' | head -1)" \
+  kubectl get secret --namespace cattle-system bootstrap-secret \
+  -o go-template='{{.data.bootstrapPassword|base64decode}}{{ "\n" }}'
 ```
 
 ## Configuration options
 
-### Option: `log_level`
-
-Controls add-on log verbosity. Default: `info`.
-
-### Option: `rancher_version`
-
-Docker image tag for Rancher. Default: `stable`.
-
-Examples: `stable`, `v2.10.3`, `latest`
-
 ### Option: `bootstrap_password`
 
-Initial password for the `admin` user. Strongly recommended. If empty, Rancher generates a random password on first start.
+Initial password for the `admin` user. Strongly recommended.
 
 ### Option: `server_url`
 
-External URL where Rancher is accessed. Set this if you use Ingress or a reverse proxy and Rancher reports an incorrect URL.
-
-Example: `https://homeassistant.local:8123`
-
-For Ingress, you may need to set this to your Home Assistant URL. Rancher uses it for agent registration and redirects.
-
-### Option: `http_port` / `https_port`
-
-Local host ports used to publish the Rancher container (bound to `127.0.0.1` only). Defaults: `18080` / `18443`.
-
-Change these only if they conflict with another service on your host.
+External URL Rancher should advertise (for example your Home Assistant HTTPS URL). Helps with redirects and agent registration behind Ingress.
 
 ### Option: `reset_data`
 
-When `true`, the app deletes Docker volume `hassio_addon_rancher_data` before starting, then automatically sets this option back to `false`. Use this after a failed k3s start (`k3s exited with: exit status 2`). If auto-clear fails (check the app log), turn it off manually or every restart will wipe Rancher again.
+When `true`, wipes `/data/rancher` on the next start, then automatically sets this back to `false`. Use after a failed k3s init.
+
+### Option: `k3s_haos_compat`
+
+When `true` (default), sets `CONTAINERD_SNAPSHOTTER=native` so embedded k3s can run on HAOS overlay-backed storage ([k3s#4769](https://github.com/k3s-io/k3s/issues/4769)). Upstream [`entrypoint.sh`](https://github.com/rancher/rancher/blob/main/package/entrypoint.sh) handles cgroup v2 inside the container. Turn off only when debugging.
+
+After changing this option, use **Reset Rancher data** once on a clean start.
+
+### Rancher version
+
+Pinned by `RANCHER_TAG` in the app `Dockerfile` (default `stable`). Bumping the upstream tag ships with a new app release.
 
 ## Network access
 
-By default, Rancher is available through **Home Assistant Ingress** only. To expose Rancher directly on your LAN, enable the optional host ports in the app **Network** section:
-
-| Port | Description        |
-|------|--------------------|
-| 80   | Rancher HTTP       |
-| 443  | Rancher HTTPS      |
-
-When enabling direct access, map them to non-conflicting host ports (for example `8080` and `8443`). Official docs use the same remap when Rancher and an ingress controller share a node.
+- **Ingress (default):** port **8099** inside the app container (Caddy → Rancher on `127.0.0.1:80`).
+- **Optional LAN access:** enable **80/tcp** and **443/tcp** in the app **Network** tab and map to free host ports (for example `8080` / `8443`).
 
 ## TLS / certificates
 
-No custom certificates are required. [Home Assistant Ingress](https://developers.home-assistant.io/docs/apps/presentation#ingress) terminates TLS, same role as Rancher’s [layer-7 NGINX load balancer](https://ranchermanager.docs.rancher.com/v2.15/how-to-guides/advanced-user-guides/configure-layer-7-nginx-load-balancer).
-
-This app’s nginx:
-
-- Proxies to `rancher/rancher` on HTTP (container port 80)
-- Sends `Host`, `X-Forwarded-Proto`, `X-Forwarded-Port`, `X-Forwarded-For`
-- Supports WebSockets (`Upgrade` / `Connection`)
-- Sets `X-Forwarded-Proto: https` by default so Rancher **does not** redirect HTTP→HTTPS (HA already used HTTPS)
-
-The Rancher container is started with `--no-cacerts`. Do not enable Let’s Encrypt (`--acme-domain`): port 80 is not published to the internet.
+No custom certificates. Caddy sends `X-Forwarded-Proto: https` and `X-Forwarded-Port: 443` so Rancher does not HTTP→HTTPS redirect behind Home Assistant TLS. See Rancher’s [layer-7 nginx guide](https://ranchermanager.docs.rancher.com/v2.15/how-to-guides/advanced-user-guides/configure-layer-7-nginx-load-balancer).
 
 ## Data persistence
 
-Rancher data is stored in the Docker volume `hassio_addon_rancher_data`, mounted at `/var/lib/rancher` as described in [persistent data for Docker installs](https://ranchermanager.docs.rancher.com/reference-guides/single-node-rancher-in-docker/advanced-options).
+Rancher state is stored under **`/data/rancher`** in the app container (Supervisor persistent `/data`), bind-mounted to `/var/lib/rancher`.
 
 ## Troubleshooting
 
 ### App does not appear in the store
 
-- Check **Settings → System → Logs → Supervisor** for `config.yaml` validation errors.
+- Check **Settings → System → Logs → Supervisor** for `config.yaml` errors.
 - Hard-refresh the browser (Ctrl+F5).
-
-### Rancher container fails to start
-
-- Confirm Protection mode is disabled.
-- Ensure the host has at least 4 GB RAM available.
-- Check app logs for Docker pull or permission errors.
-
-### `Managed etcd cluster membership was previously reset`
-
-k3s left `/var/lib/rancher/k3s/server/db/reset-flag` after a failed start. From 1.0.7 the app deletes that file before each start.
-
-If it still fails:
-
-1. Update to **1.0.7+** and start again (do **not** leave **Reset Rancher data** on unless you want a wipe).
-2. If etcd is still corrupt, enable **Reset Rancher data** once, start, then turn it off.
 
 ### `k3s exited with: exit status 2`
 
-Embedded k3s (inside `rancher/rancher`) failed to start. Try:
+Log lines like `very short watch` and `watcher channel closed` mean embedded k3s crashed during bootstrap.
 
-1. Enable **Reset Rancher data** once, start the app, wait several minutes, then disable it.
-2. Ensure the host has at least 4 GB RAM free.
-3. Check app logs after the container stops (includes recent Rancher and k3s logs).
+1. Stay on **2.0.0+** with **HAOS k3s compatibility** enabled.
+2. **Reset Rancher data** once, start, wait several minutes.
+3. Ensure **4 GB+ RAM** free.
+4. Check app logs for `overlayfs` or `snapshotter cannot be enabled`.
 
-If it still fails, Rancher’s single-node Docker install is not officially supported on all HAOS setups.
+### Ingress blank page or redirect loop
 
-### Ingress shows a blank page or connection errors
+- Wait for first-time initialization.
+- Set **`server_url`** to your Home Assistant HTTPS URL.
 
-- Wait several minutes on first start; Rancher can take time to initialize.
-- Verify the watchdog URL responds in the app **Info** tab.
-- Set `server_url` to your Home Assistant **HTTPS** URL if redirects or agent registration fail (`X-Forwarded-Proto` must be `https`).
+### `Managed etcd cluster membership was previously reset`
 
-### Retrieve bootstrap password
-
-See [First login](#first-login) above.
+The entrypoint clears `/var/lib/rancher/k3s/server/db/reset-flag` before each start. If etcd is still corrupt, use **Reset Rancher data** once.
 
 ## Changelog
 

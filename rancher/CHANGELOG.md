@@ -4,6 +4,25 @@ All notable changes to this project are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [2.0.0] - 2026-08-30
+
+### Changed
+
+- Run upstream `rancher/rancher` directly as the app container (`FROM rancher/rancher`) instead of a hassio-addons base wrapper that starts a nested host container.
+- Replace Alpine nginx + s6 + docker-cli with a thin entrypoint, static Caddy on `:8099` for Ingress, and jq for options.
+- Persist data under app `/data/rancher` (bind-mounted to `/var/lib/rancher`) instead of Docker volume `hassio_addon_rancher_data`.
+- Drop `docker_api`, `host_network`, `rancher_version`, `http_port`, and `https_port` options.
+
+### Removed
+
+- Host `docker run` orchestration and k3s log dump via a separate container.
+
+## [1.0.9] - 2026-08-30
+
+### Fixed
+
+- Re-enable minimal HAOS k3s flags (`CONTAINERD_SNAPSHOTTER=native`, `--cgroupns host`, tmpfs `/run`) behind `k3s_haos_compat` (default on) so embedded k3s can start on overlay-backed Docker volumes without the broader 1.0.2 workarounds.
+
 ## [1.0.8] - 2026-08-30
 
 ### Changed
