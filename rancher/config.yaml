@@ -1,6 +1,6 @@
 # https://developers.home-assistant.io/docs/apps/configuration
 name: Rancher
-version: "2.0.3"
+version: "2.0.4"
 slug: rancher
 description: >-
   Rancher Kubernetes management platform. Runs the official rancher/rancher
@@ -12,7 +12,7 @@ arch:
 startup: services
 init: false
 advanced: true
-stage: experimental
+stage: beta
 panel_icon: mdi:kubernetes
 panel_title: Rancher
 ingress: true
