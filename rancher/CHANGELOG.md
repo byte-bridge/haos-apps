@@ -4,6 +4,12 @@ All notable changes to this project are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [2.0.1] - 2026-08-30
+
+### Fixed
+
+- Download Caddy and jq in an Alpine build stage; `rancher/rancher` (BCI micro) has no CA bundle for `curl`, which broke the 2.0.0 image build.
+
 ## [2.0.0] - 2026-08-30
 
 ### Changed
