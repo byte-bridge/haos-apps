@@ -2,6 +2,8 @@
 
 ## Git repository (recommended)
 
+This repository is for **Home Assistant OS**. [Home Assistant Supervised](https://github.com/home-assistant/architecture/blob/master/adr/0014-home-assistant-supervised.md) was dropped as an official install method in [architecture discussion #1198](https://github.com/home-assistant/architecture/discussions/1198) (deprecated from HA 2025.6). Migrate to HAOS if you still use Supervised.
+
 1. Add this repository under **Settings → Apps → App store → ⋮ → Repositories**:
 
    ```

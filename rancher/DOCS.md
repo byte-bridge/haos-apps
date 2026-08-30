@@ -1,8 +1,26 @@
 # Rancher App for Home Assistant
 
-This app deploys [Rancher Manager](https://www.rancher.com/) on Home Assistant OS using the [single-node Docker install](https://ranchermanager.docs.rancher.com/getting-started/installation-and-upgrade/other-installation-methods/rancher-on-a-single-node-with-docker/). That method is for development and testing only.
+This app deploys [Rancher Manager](https://www.rancher.com/) on **Home Assistant OS** using the [single-node Docker install](https://ranchermanager.docs.rancher.com/getting-started/installation-and-upgrade/other-installation-methods/rancher-on-a-single-node-with-docker/). That method is for **development and testing only**, not production.
 
-Home Assistant Ingress already terminates TLS, so this app uses **Option E** (`--no-cacerts`) and does not mount certificates.
+It is not aimed at [Home Assistant Supervised](https://github.com/home-assistant/architecture/blob/master/adr/0014-home-assistant-supervised.md). That install method was dropped in [architecture discussion #1198](https://github.com/home-assistant/architecture/discussions/1198) (deprecated from HA 2025.6). Use **Home Assistant OS** instead.
+
+Home Assistant Ingress is a [layer-7 proxy that terminates TLS](https://ranchermanager.docs.rancher.com/v2.15/how-to-guides/advanced-user-guides/configure-layer-7-nginx-load-balancer) in front of `rancher/rancher`. The container is started with `--no-cacerts` (Rancher Option B for a recognized CA / no default CA in the container). No PEM files are mounted.
+
+## Requirements
+
+From Rancher’s [installation requirements](https://ranchermanager.docs.rancher.com/v2.15/getting-started/installation-and-upgrade/installation-requirements/) **Docker** table (single-node, not production):
+
+| Size | Max clusters | Max nodes | vCPUs | RAM |
+|------|--------------|-----------|-------|-----|
+| Small | 5 | 50 | 1 | 4 GB |
+| Medium | 15 | 200 | 2 | 8 GB |
+
+Also:
+
+- Linux host, **amd64** or **aarch64** (`rancher/rancher` is multi-arch)
+- Firefox or a Chromium-based browser for the UI
+- Enough RAM **on the HAOS machine** after Home Assistant itself is running
+- SSD storage is recommended (Rancher’s datastore is etcd inside the container)
 
 ## Warning
 
@@ -90,9 +108,16 @@ When enabling direct access, map them to non-conflicting host ports (for example
 
 ## TLS / certificates
 
-No custom certificates are required. Ingress handles HTTPS. The Rancher container is started with `--no-cacerts` so it does not generate its own CA (same as Option E in the Docker install guide).
+No custom certificates are required. [Home Assistant Ingress](https://developers.home-assistant.io/docs/apps/presentation#ingress) terminates TLS, same role as Rancher’s [layer-7 NGINX load balancer](https://ranchermanager.docs.rancher.com/v2.15/how-to-guides/advanced-user-guides/configure-layer-7-nginx-load-balancer).
 
-Do not enable Let's Encrypt (`--acme-domain`) on this app: port 80 is not published to the internet, and Ingress already provides TLS.
+This app’s nginx:
+
+- Proxies to `rancher/rancher` on HTTP (container port 80)
+- Sends `Host`, `X-Forwarded-Proto`, `X-Forwarded-Port`, `X-Forwarded-For`
+- Supports WebSockets (`Upgrade` / `Connection`)
+- Sets `X-Forwarded-Proto: https` by default so Rancher **does not** redirect HTTP→HTTPS (HA already used HTTPS)
+
+The Rancher container is started with `--no-cacerts`. Do not enable Let’s Encrypt (`--acme-domain`): port 80 is not published to the internet.
 
 ## Data persistence
 
@@ -125,7 +150,7 @@ If it still fails, Rancher’s single-node Docker install is not officially supp
 
 - Wait several minutes on first start; Rancher can take time to initialize.
 - Verify the watchdog URL responds in the app **Info** tab.
-- Set `server_url` to your Home Assistant external URL if redirects fail.
+- Set `server_url` to your Home Assistant **HTTPS** URL if redirects or agent registration fail (`X-Forwarded-Proto` must be `https`).
 
 ### Retrieve bootstrap password
 

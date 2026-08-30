@@ -7,6 +7,8 @@ alwaysApply: true
 
 This is a multi-app Home Assistant repository at `github.com/byte-bridge/haos-apps`.
 
+Target **Home Assistant OS** only. See [docs/HOME_ASSISTANT_ADRS.md](docs/HOME_ASSISTANT_ADRS.md). Supervised was dropped in [discussion #1198](https://github.com/home-assistant/architecture/discussions/1198); [ADR-0013 Container](https://github.com/home-assistant/architecture/blob/master/adr/0013-home-assistant-container.md) has no Supervisor/apps.
+
 ## Structure
 
 - App folders live at the **repo root** (e.g. `rancher/`), each with a `config.yaml`

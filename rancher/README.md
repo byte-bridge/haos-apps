@@ -12,8 +12,8 @@
 
 ## Requirements
 
-- Home Assistant OS or Supervised
-- Minimum 4 GB RAM
+- **Home Assistant OS** (Supervised is not a supported HA install method)
+- [Rancher Docker install](https://ranchermanager.docs.rancher.com/v2.15/getting-started/installation-and-upgrade/installation-requirements/) hardware: **1 vCPU / 4 GB RAM** (small) or **2 vCPU / 8 GB RAM** (medium). Docker install is for development/testing only.
 - Protection mode disabled
 - Advanced Mode enabled in your profile
 

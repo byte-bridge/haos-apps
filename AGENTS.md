@@ -10,6 +10,28 @@ This file provides context for AI agents (Cursor, Copilot, etc.) working in this
 - **Registry file:** `repository.yaml` at the repo root
 - **Each app:** a top-level folder with its own `config.yaml` (e.g. `rancher/`)
 
+## Target platform: Home Assistant OS
+
+This repo targets **Home Assistant OS (HAOS)**, not Home Assistant Supervised or Home Assistant Container.
+
+See [docs/HOME_ASSISTANT_ADRS.md](docs/HOME_ASSISTANT_ADRS.md) for how [Home Assistant ADRs](https://github.com/home-assistant/architecture/tree/master/adr) map to this repo. Summary:
+
+| ADR | Method | Use for haos-apps? |
+|-----|--------|-------------------|
+| [0015 HAOS](https://github.com/home-assistant/architecture/blob/master/adr/0015-home-assistant-os.md) | Home Assistant OS | **Yes — primary target** |
+| [0014 Supervised](https://github.com/home-assistant/architecture/blob/master/adr/0014-home-assistant-supervised.md) | Supervised | **No — reverted** |
+| [0013 Container](https://github.com/home-assistant/architecture/blob/master/adr/0013-home-assistant-container.md) | Container | **No — no Supervisor / no apps** |
+
+[ADR-0014](https://github.com/home-assistant/architecture/blob/master/adr/0014-home-assistant-supervised.md) defined Supervised (HA on a dedicated Debian host with Supervisor). That ADR is **reverted** by [discussion #1198](https://github.com/home-assistant/architecture/discussions/1198): Supervised is no longer an officially supported install method (deprecated from HA 2025.6).
+
+Do not:
+
+- Treat Supervised as a supported target or test matrix
+- Apply old Supervised Docker rules as HAOS requirements (the ADR required overlayfs2, journald, and **cgroup v1** on the host). HAOS is its own OS and typically uses **cgroup v2**. Do not add k3s/cgroup v1 workarounds “because Supervised said so.”
+- Document install steps that assume a user-managed Debian + Docker CE host
+
+Apps that start extra host containers (Rancher) already sit outside what Home Assistant supports on HAOS. Keep that warning in `DOCS.md`.
+
 ## Repository layout
 
 ```
@@ -116,3 +138,7 @@ Wraps the official `rancher/rancher` Docker image via host Docker API.
 - [apps-example](https://github.com/home-assistant/apps-example) — official repo/app blueprint
 - [hassio-addons/app-base](https://github.com/hassio-addons/app-base) — Alpine + s6 + bashio
 - [hassio-addons/bashio](https://github.com/hassio-addons/bashio)
+- [ADR-0014 (Supervised, reverted)](https://github.com/home-assistant/architecture/blob/master/adr/0014-home-assistant-supervised.md) — do not target Supervised
+- [Discussion #1198](https://github.com/home-assistant/architecture/discussions/1198) — decision to drop Supervised support
+- [ADR-0015 (HAOS)](https://github.com/home-assistant/architecture/blob/master/adr/0015-home-assistant-os.md) — primary target
+- [All Home Assistant ADRs](https://github.com/home-assistant/architecture/tree/master/adr) — see [docs/HOME_ASSISTANT_ADRS.md](docs/HOME_ASSISTANT_ADRS.md)

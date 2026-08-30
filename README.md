@@ -53,6 +53,7 @@ See [docs/ADDING_AN_APP.md](docs/ADDING_AN_APP.md) for the full checklist.
 
 - [Home Assistant Apps docs](https://developers.home-assistant.io/docs/apps/)
 - [Official apps-example](https://github.com/home-assistant/apps-example) — packaging blueprint (layout, files, CI)
+- [Home Assistant ADRs](docs/HOME_ASSISTANT_ADRS.md) — install methods (HAOS vs Supervised vs Container)
 - [Contributing](docs/CONTRIBUTING.md)
 - [Agent instructions](AGENTS.md)
 
