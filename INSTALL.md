@@ -12,7 +12,7 @@
 1. Add this repository URL under **Settings → Apps → App store → ⋮ → Repositories**:
 
    ```
-   https://github.com/YOUR_USER/haos-rancher
+   https://github.com/byte-bridge/haos-rancher
    ```
 
 2. Click **Check for updates** and install **Rancher**.

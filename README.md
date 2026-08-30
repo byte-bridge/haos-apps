@@ -16,7 +16,7 @@ Rancher is an open-source Kubernetes management platform. This app deploys the o
 1. Copy this repository to your Home Assistant `addons` folder, or add it as a custom repository in **Settings → Apps → App store → ⋮ → Repositories**:
 
    ```
-   https://github.com/haos-rancher/haos-rancher
+   https://github.com/byte-bridge/haos-rancher
    ```
 
 2. Go to **Settings → Apps → App store** and click **Check for updates**.
