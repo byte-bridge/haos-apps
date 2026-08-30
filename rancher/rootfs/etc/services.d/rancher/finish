@@ -1,6 +1,27 @@
 #!/usr/bin/with-contenv bashio
 # ==============================================================================
-# HAOS Rancher - stop the Rancher container on service shutdown
+# HAOS Rancher - stop the Rancher container and surface k3s logs on failure
 # ==============================================================================
+declare rancher_version
+
+rancher_version="$(bashio::config 'rancher_version')"
+
 bashio::log.info "Stopping Rancher container..."
 docker stop hassio-rancher >/dev/null 2>&1 || true
+
+bashio::log.info "Last Rancher container logs:"
+docker logs --tail 80 hassio-rancher 2>&1 || true
+
+bashio::log.info "Last k3s/containerd logs from data volume:"
+docker run --rm \
+    --entrypoint /bin/sh \
+    -v hassio_addon_rancher_data:/var/lib/rancher \
+    "rancher/rancher:${rancher_version}" \
+    -c 'for f in \
+            /var/lib/rancher/k3s/agent/containerd/containerd.log \
+            /var/lib/rancher/k3s/server/logs/k3s.log; do
+            if [ -f "$f" ]; then echo "===== $f ====="; tail -n 60 "$f"; fi
+        done' \
+    2>&1 || true
+
+docker rm -f hassio-rancher >/dev/null 2>&1 || true

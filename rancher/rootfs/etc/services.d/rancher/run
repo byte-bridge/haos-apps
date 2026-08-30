@@ -15,12 +15,30 @@ rancher_version="$(bashio::config 'rancher_version')"
 http_port="$(bashio::config 'http_port')"
 https_port="$(bashio::config 'https_port')"
 
+if bashio::config.true 'reset_data'; then
+    bashio::log.warning "reset_data is enabled — wiping hassio_addon_rancher_data"
+    docker rm -f hassio-rancher >/dev/null 2>&1 || true
+    docker volume rm hassio_addon_rancher_data >/dev/null 2>&1 || true
+    docker volume create hassio_addon_rancher_data
+    bashio::log.warning "Disable reset_data in app options after this start succeeds"
+fi
+
+# k3s-in-Docker needs privileged + writable cgroup, tmpfs for /run, and a
+# non-overlay snapshotter because HAOS stores volumes on overlayfs.
 docker_args+=(
     run
-    --rm
     --name hassio-rancher
+    --hostname rancher
     --privileged
+    --cgroupns host
+    --security-opt apparmor=unconfined
+    --security-opt seccomp=unconfined
+    --tmpfs /run
+    --tmpfs /var/run
+    --ulimit nofile=65535:65535
+    --ulimit nproc=65535
     --pull always
+    -e CONTAINERD_SNAPSHOTTER=native
     -v hassio_addon_rancher_data:/var/lib/rancher
     -p "127.0.0.1:${http_port}:80"
     -p "127.0.0.1:${https_port}:443"

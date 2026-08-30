@@ -1,6 +1,6 @@
 # https://developers.home-assistant.io/docs/apps/configuration
 name: Rancher
-version: "1.0.1"
+version: "1.0.2"
 slug: rancher
 description: >-
   Rancher Kubernetes management platform. Deploy and manage Kubernetes clusters
@@ -23,6 +23,7 @@ hassio_api: true
 hassio_role: manager
 docker_api: true
 full_access: true
+apparmor: false
 map:
   - type: addon_config
     read_only: false
@@ -40,6 +41,7 @@ options:
   server_url: ""
   http_port: 18080
   https_port: 18443
+  reset_data: false
 schema:
   log_level: list(trace|debug|info|notice|warning|error|fatal)?
   rancher_version: str
@@ -47,3 +49,4 @@ schema:
   server_url: url?
   http_port: port
   https_port: port
+  reset_data: bool

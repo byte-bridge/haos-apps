@@ -71,6 +71,10 @@ Local host ports used to publish the Rancher container (bound to `127.0.0.1` onl
 
 Change these only if they conflict with another service on your host.
 
+### Option: `reset_data`
+
+When `true`, the app deletes Docker volume `hassio_addon_rancher_data` before starting. Use this after a failed k3s start (`k3s exited with: exit status 2`). **Turn it back off** after a successful start or you will wipe Rancher on every boot.
+
 ## Network access
 
 By default, Rancher is available through **Home Assistant Ingress** only. To expose Rancher directly on your LAN, enable the optional host ports in the app **Network** section:
@@ -98,6 +102,16 @@ Rancher data is stored in the Docker volume `hassio_addon_rancher_data` on your 
 - Confirm Protection mode is disabled.
 - Ensure the host has at least 4 GB RAM available.
 - Check app logs for Docker pull or permission errors.
+
+### `k3s exited with: exit status 2`
+
+Embedded k3s (inside `rancher/rancher`) failed. Common on HAOS because of cgroup v2 and overlayfs volumes. After updating to 1.0.2+:
+
+1. Enable **Reset Rancher data** once.
+2. Start the app and wait several minutes.
+3. Disable **Reset Rancher data**.
+
+If it still fails, the app logs should include a `containerd.log` / `k3s.log` dump after the container stops.
 
 ### Ingress shows a blank page or connection errors
 

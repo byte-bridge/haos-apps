@@ -17,6 +17,9 @@ configuration:
   https_port:
     name: HTTPS port
     description: Local port for Rancher HTTPS (bound to 127.0.0.1).
+  reset_data:
+    name: Reset Rancher data
+    description: Wipe the Rancher data volume on the next start. Turn this off after a successful start.
 network:
   80/TCP: Rancher HTTP (optional direct host access)
   443/TCP: Rancher HTTPS (optional direct host access)
