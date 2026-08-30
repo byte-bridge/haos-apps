@@ -5,14 +5,17 @@ FROM ${BUILD_FROM}
 # Set shell
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
-# Copy root filesystem
-COPY rootfs /
-
 # Install runtime dependencies
+# Alpine nginx ships http.d/default.conf listening on :80; remove it so host_network
+# does not collide with Home Assistant on the host.
 RUN apk add --no-cache \
     docker-cli \
     jq \
-    nginx
+    nginx \
+  && rm -f /etc/nginx/http.d/default.conf
+
+# Overlay our nginx config last so it is not replaced by the package.
+COPY rootfs /
 
 # Build arguments
 ARG BUILD_ARCH
