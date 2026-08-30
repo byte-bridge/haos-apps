@@ -18,9 +18,10 @@ This is a multi-app Home Assistant repository at `github.com/byte-bridge/haos-ap
 
 1. Read `AGENTS.md` and `docs/ADDING_AN_APP.md`
 2. Follow [HA app configuration](https://developers.home-assistant.io/docs/apps/configuration)
-3. Use `#!/usr/bin/with-contenv bashio` for shell scripts with LF line endings
-4. Update the apps table in root `README.md`
-5. Document security requirements (Protection mode, privileged access) in `DOCS.md`
+3. Use [home-assistant/apps-example](https://github.com/home-assistant/apps-example) for packaging/layout/CI — not for Rancher’s privileged Docker wrapper
+4. Use `#!/usr/bin/with-contenv bashio` for shell scripts with LF line endings
+5. Update the apps table in root `README.md`
+6. Document security requirements (Protection mode, privileged access) in `DOCS.md`
 
 ## Code style
 

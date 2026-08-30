@@ -3,7 +3,7 @@
 ## Prerequisites
 
 - A Home Assistant OS or Supervised instance for testing
-- Familiarity with [Home Assistant app development](https://developers.home-assistant.io/docs/apps/)
+- Familiarity with [Home Assistant app development](https://developers.home-assistant.io/docs/apps/) and the official [apps-example](https://github.com/home-assistant/apps-example) repository (layout, `config.yaml`, s6 `rootfs`, CI)
 
 ## Workflow
 

@@ -2,6 +2,8 @@
 
 This repository follows the [Home Assistant app structure](https://developers.home-assistant.io/docs/apps/configuration). Each app is a top-level folder sibling to `repository.yaml`.
 
+The official blueprint is [home-assistant/apps-example](https://github.com/home-assistant/apps-example). Match its file set and repo layout. Do not copy its runtime: the example app runs a small program in the app container. Wrappers like `rancher/` start an upstream image via the host Docker API instead.
+
 ## Quick start
 
 ```bash
@@ -98,4 +100,5 @@ Document all security requirements in the app's `DOCS.md`. See the [security rat
 - [App tutorial](https://developers.home-assistant.io/docs/apps/tutorial)
 - [App configuration](https://developers.home-assistant.io/docs/apps/configuration)
 - [Ingress](https://developers.home-assistant.io/docs/apps/presentation#ingress)
-- [Example repository](https://github.com/home-assistant/addons-example)
+- [apps-example](https://github.com/home-assistant/apps-example) — official packaging blueprint
+- [app-base](https://github.com/hassio-addons/app-base) — community Alpine + s6 + bashio image

@@ -41,6 +41,23 @@ docs/                 # Shared docs (install, contributing, adding apps)
 
 See `docs/ADDING_AN_APP.md` for the full checklist.
 
+## Official blueprint: apps-example
+
+The Home Assistant template is [home-assistant/apps-example](https://github.com/home-assistant/apps-example). Use it for **repository and app packaging**, not for Rancher’s Docker/k3s runtime.
+
+**Copy from apps-example**
+
+- Repo layout: `repository.yaml` plus one folder per app at the root (`example/` → our `rancher/`)
+- App files: `config.yaml`, `Dockerfile`, `DOCS.md`, `CHANGELOG.md`, `icon.png` / `logo.png`, `translations/en.yaml`, `rootfs/etc/services.d/.../run|finish`
+- `slug` must match the folder name; `init: false` when using s6
+- `image:` in `config.yaml` when publishing to a container registry (GHCR)
+- CI: `.github/workflows/build-app.yaml`, `builder.yaml`, `lint.yaml`
+- Optional: `apparmor.txt` for a custom AppArmor profile
+
+**Do not copy from apps-example for rancher/**
+
+The example app is a tiny in-container program. Rancher is a **privileged Docker wrapper** (`docker run rancher/rancher`). For that, follow `rancher/` in this repo and the [single-node Docker install](https://ranchermanager.docs.rancher.com/getting-started/installation-and-upgrade/other-installation-methods/rancher-on-a-single-node-with-docker/). apps-example has no `docker_api`, Ingress nginx, or `--privileged` host container.
+
 ## Conventions
 
 ### config.yaml
@@ -96,5 +113,6 @@ Wraps the official `rancher/rancher` Docker image via host Docker API.
 - [HA app docs](https://developers.home-assistant.io/docs/apps/)
 - [App configuration reference](https://developers.home-assistant.io/docs/apps/configuration)
 - [Ingress guide](https://developers.home-assistant.io/docs/apps/presentation#ingress)
-- [addons-example](https://github.com/home-assistant/addons-example)
+- [apps-example](https://github.com/home-assistant/apps-example) — official repo/app blueprint
+- [hassio-addons/app-base](https://github.com/hassio-addons/app-base) — Alpine + s6 + bashio
 - [hassio-addons/bashio](https://github.com/hassio-addons/bashio)
