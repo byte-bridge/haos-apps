@@ -52,4 +52,8 @@ Persistent data lives on the host volume used by the Rancher container; app opti
 
 ## Versioning
 
-Bump `version` in `config.yaml` and note changes in `CHANGELOG.md` when shipping behavior or packaging changes.
+When shipping behavior or packaging changes:
+
+1. Bump `version` in `config.yaml`.
+2. Add a [Keep a Changelog](https://keepachangelog.com/) section to `CHANGELOG.md`.
+3. Use that new section as the git commit message (see root [AGENTS.md](../AGENTS.md#app-changes-changelog-and-commits)).

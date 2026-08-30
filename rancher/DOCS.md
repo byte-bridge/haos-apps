@@ -93,7 +93,7 @@ Change these only if they conflict with another service on your host.
 
 ### Option: `reset_data`
 
-When `true`, the app deletes Docker volume `hassio_addon_rancher_data` before starting. Use this after a failed k3s start (`k3s exited with: exit status 2`). **Turn it back off** after a successful start or you will wipe Rancher on every boot.
+When `true`, the app deletes Docker volume `hassio_addon_rancher_data` before starting, then automatically sets this option back to `false`. Use this after a failed k3s start (`k3s exited with: exit status 2`). If auto-clear fails (check the app log), turn it off manually or every restart will wipe Rancher again.
 
 ## Network access
 
@@ -135,6 +135,15 @@ Rancher data is stored in the Docker volume `hassio_addon_rancher_data`, mounted
 - Confirm Protection mode is disabled.
 - Ensure the host has at least 4 GB RAM available.
 - Check app logs for Docker pull or permission errors.
+
+### `Managed etcd cluster membership was previously reset`
+
+k3s left `/var/lib/rancher/k3s/server/db/reset-flag` after a failed start. From 1.0.7 the app deletes that file before each start.
+
+If it still fails:
+
+1. Update to **1.0.7+** and start again (do **not** leave **Reset Rancher data** on unless you want a wipe).
+2. If etcd is still corrupt, enable **Reset Rancher data** once, start, then turn it off.
 
 ### `k3s exited with: exit status 2`
 

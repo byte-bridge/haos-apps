@@ -4,6 +4,18 @@ All notable changes to this project are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.0.8] - 2026-08-30
+
+### Changed
+
+- `reset_data` is cleared automatically after wiping the Rancher volume so a one-time reset does not repeat on every boot.
+
+## [1.0.7] - 2026-08-30
+
+### Fixed
+
+- Remove leftover `/var/lib/rancher/k3s/server/db/reset-flag` before start so k3s can recover after a previous `--cluster-reset`.
+
 ## [1.0.6] - 2026-08-30
 
 ### Fixed

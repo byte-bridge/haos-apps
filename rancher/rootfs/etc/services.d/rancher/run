@@ -20,8 +20,21 @@ if bashio::config.true 'reset_data'; then
     docker rm -f hassio-rancher >/dev/null 2>&1 || true
     docker volume rm hassio_addon_rancher_data >/dev/null 2>&1 || true
     docker volume create hassio_addon_rancher_data
-    bashio::log.warning "Disable reset_data in app options after this start succeeds"
+    bashio::log.info "Reset complete — turning off reset_data in app options"
+    bashio::addon.option 'reset_data' '^false' || \
+        bashio::log.warning "Could not clear reset_data automatically; disable it in app options"
 fi
+
+# After a failed/partial k3s start, Rancher's entrypoint re-runs --cluster-reset.
+# k3s refuses unless this file is gone:
+# /var/lib/rancher/k3s/server/db/reset-flag
+bashio::log.info "Clearing leftover k3s cluster-reset flag (if present)..."
+docker run --rm \
+    --entrypoint /bin/sh \
+    -v hassio_addon_rancher_data:/var/lib/rancher \
+    "rancher/rancher:${rancher_version}" \
+    -c 'rm -f /var/lib/rancher/k3s/server/db/reset-flag' \
+    >/dev/null 2>&1 || true
 
 # Official single-node Docker install (Option E — no certificate):
 # https://ranchermanager.docs.rancher.com/getting-started/installation-and-upgrade/other-installation-methods/rancher-on-a-single-node-with-docker/
