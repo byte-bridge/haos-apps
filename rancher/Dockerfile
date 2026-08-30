@@ -40,7 +40,7 @@ COPY --from=tools /tmp/caddy /tmp/jq /usr/bin/
 
 COPY rootfs/ /
 
-RUN chmod +x /usr/local/bin/haos-entrypoint.sh /usr/local/lib/haos-rancher/options.sh
+RUN chmod +x /usr/local/bin/haos-entrypoint.sh /usr/local/bin/rancher-entrypoint.sh /usr/local/lib/haos-rancher/options.sh
 
 LABEL \
     io.hass.name="${BUILD_NAME}" \

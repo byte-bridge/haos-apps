@@ -45,4 +45,4 @@ nohup caddy run --config /etc/caddy/Caddyfile --adapter caddyfile >>/proc/1/fd/1
 disown -h $!
 
 haos_log "Starting Rancher (upstream entrypoint)..."
-exec entrypoint.sh "$@"
+exec /usr/local/bin/rancher-entrypoint.sh "$@"

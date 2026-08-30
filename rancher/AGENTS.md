@@ -7,7 +7,7 @@ Applies when working under `rancher/`. Combine with the root [AGENTS.md](../AGEN
 Thin **Home Assistant wrapper** around the upstream [`rancher/rancher`](https://hub.docker.com/r/rancher/rancher) image. Rancher and embedded k3s run **inside the app container** — no host `docker run`, no hassio-addons base, no s6.
 
 - Upstream: [single-node Docker install](https://ranchermanager.docs.rancher.com/getting-started/installation-and-upgrade/other-installation-methods/rancher-on-a-single-node-with-docker/) (dev/test only)
-- Upstream packaging: [rancher/rancher `package/`](https://github.com/rancher/rancher/tree/main/package)
+- Upstream packaging: [rancher/rancher `package/entrypoint.sh`](https://github.com/rancher/rancher/blob/main/package/entrypoint.sh) — synced into `rootfs/usr/local/bin/rancher-entrypoint.sh` (HAOS cgroup skip)
 - User docs: [DOCS.md](DOCS.md)
 
 ## Architecture
@@ -36,6 +36,7 @@ Do **not** use `docker_api` or `host_network` — removed in 2.0.0.
 
 - `Dockerfile` — `FROM rancher/rancher:${RANCHER_TAG}` + static Caddy/jq
 - `rootfs/usr/local/bin/haos-entrypoint.sh` — main entrypoint
+- `rootfs/usr/local/bin/rancher-entrypoint.sh` — upstream `entrypoint.sh` + HAOS read-only cgroup skip
 - `rootfs/usr/local/lib/haos-rancher/options.sh` — read `/data/options.json`, Supervisor API
 - `rootfs/etc/caddy/Caddyfile` — Ingress on 8099 (allow `172.30.32.2`)
 - `config.yaml` — manifest (`slug: rancher` must match folder)

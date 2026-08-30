@@ -4,6 +4,13 @@ All notable changes to this project are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [2.0.3] - 2026-08-30
+
+### Fixed
+
+- Skip upstream Rancher cgroup v2 init when `/sys/fs/cgroup` is read-only (Home Assistant Supervisor mounts it RO; `mkdir /sys/fs/cgroup/init` otherwise fails).
+- Add `apparmor: false` and k3s-oriented `privileged` capabilities alongside `full_access`.
+
 ## [2.0.2] - 2026-08-30
 
 ### Fixed

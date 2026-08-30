@@ -110,6 +110,12 @@ Rancher state is stored under **`/data/rancher`** in the app container (Supervis
 - Check **Settings → System → Logs → Supervisor** for `config.yaml` errors.
 - Hard-refresh the browser (Ctrl+F5).
 
+Upstream [`entrypoint.sh`](https://github.com/rancher/rancher/blob/main/package/entrypoint.sh) normally configures cgroup v2 inside the container. On HAOS, Supervisor mounts `/sys/fs/cgroup` read-only, so this app uses a thin patched entrypoint that skips that step when writes fail.
+
+### `mkdir: cannot create directory '/sys/fs/cgroup/init': Read-only file system`
+
+Expected on HAOS before **2.0.3**. Update to 2.0.3+ (patched entrypoint). If it persists, confirm Protection mode is off and restart after the update rebuild completes.
+
 ### Protection mode error after disabling the toggle
 
 - Use the **Info** tab for the Protection mode switch (not Configuration).

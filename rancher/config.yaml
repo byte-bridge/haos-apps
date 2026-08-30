@@ -1,6 +1,6 @@
 # https://developers.home-assistant.io/docs/apps/configuration
 name: Rancher
-version: "2.0.2"
+version: "2.0.3"
 slug: rancher
 description: >-
   Rancher Kubernetes management platform. Runs the official rancher/rancher
@@ -21,6 +21,13 @@ ingress_stream: true
 hassio_api: true
 hassio_role: manager
 full_access: true
+apparmor: false
+privileged:
+  - SYS_ADMIN
+  - NET_ADMIN
+  - SYS_RESOURCE
+  - IPC_LOCK
+  - SYS_PTRACE
 map:
   - type: addon_config
     read_only: false
