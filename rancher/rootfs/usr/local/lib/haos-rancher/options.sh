@@ -32,16 +32,22 @@ haos_option_has_value() {
 }
 
 haos_require_unprotected() {
-    local protected token
+    local protected token response
     token="${SUPERVISOR_TOKEN:-}"
     if [[ -z "${token}" ]]; then
         haos_log "WARNING: SUPERVISOR_TOKEN not set; skipping protection mode check"
         return 0
     fi
-    protected="$(curl -sf -H "Authorization: Bearer ${token}" \
-        "${SUPERVISOR}/addons/self/info" | jq -r '.data.protected // true')"
+    if ! response="$(curl -sf -H "Authorization: Bearer ${token}" \
+        "${SUPERVISOR}/addons/self/info")"; then
+        haos_log "WARNING: Could not query Supervisor for protection mode; skipping check"
+        return 0
+    fi
+    # Match bashio: unwrap .data, default missing field to false (not true).
+    protected="$(jq -r '(.data // .).protected // false' <<<"${response}")"
+    haos_log "Supervisor reports protection mode: ${protected}"
     if [[ "${protected}" == "true" ]]; then
-        haos_log "ERROR: Protection mode is enabled. Disable it on the app configuration page."
+        haos_log "ERROR: Protection mode is enabled. Open the app Info page, turn Protection mode off, wait for it to save, then restart the app."
         exit 1
     fi
 }

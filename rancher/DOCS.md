@@ -38,7 +38,7 @@ Home Assistant does not officially support Rancher on HAOS. Using this app may r
 
 3. Click **Check for updates** in the app store.
 4. Install **Rancher**.
-5. Turn **Protection mode** off on the app configuration page.
+5. Turn **Protection mode** off on the app **Info** page (not Configuration), wait for the switch to save, then start the app. Re-check after each app update — Supervisor defaults protection to on for new installs/rebuilds.
 6. Set a **bootstrap password**, then start the app.
 
 First boot can take **5–10 minutes**.
@@ -109,6 +109,13 @@ Rancher state is stored under **`/data/rancher`** in the app container (Supervis
 
 - Check **Settings → System → Logs → Supervisor** for `config.yaml` errors.
 - Hard-refresh the browser (Ctrl+F5).
+
+### Protection mode error after disabling the toggle
+
+- Use the **Info** tab for the Protection mode switch (not Configuration).
+- After an update/rebuild, Supervisor may reset protection to **on** — turn it off again.
+- Wait for the switch to save (no page reload mid-toggle), then restart the app.
+- In the app log, confirm you see `Supervisor reports protection mode: false` before Rancher starts.
 
 ### `k3s exited with: exit status 2`
 

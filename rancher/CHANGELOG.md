@@ -4,6 +4,12 @@ All notable changes to this project are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [2.0.2] - 2026-08-30
+
+### Fixed
+
+- Protection mode check now matches bashio (`(.data // .).protected // false`) instead of defaulting to enabled when the Supervisor field is missing.
+
 ## [2.0.1] - 2026-08-30
 
 ### Fixed
