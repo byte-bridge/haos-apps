@@ -124,6 +124,36 @@ Apps needing Docker API or privileged access must:
 - Document that users must disable Protection mode
 - Warn that HAOS may become unsupported
 
+### App changes: CHANGELOG and commits
+
+When you ship a change to an app (behavior, packaging, or docs that accompany a version bump):
+
+1. Bump `version` in `<slug>/config.yaml`.
+2. Add the release notes to `<slug>/CHANGELOG.md` ([Keep a Changelog](https://keepachangelog.com/) — `Added`, `Changed`, `Fixed`, `Removed`).
+3. When creating a git commit, **use that new CHANGELOG section as the commit message** — do not write a separate summary.
+
+Commit message format (copy the new section verbatim; prefix the subject with the app slug and version):
+
+```
+<slug> <version>
+
+### Changed
+
+- Bullet from CHANGELOG
+```
+
+Example for `rancher` 1.0.8:
+
+```
+rancher 1.0.8
+
+### Changed
+
+- `reset_data` is cleared automatically after wiping the Rancher volume so a one-time reset does not repeat on every boot.
+```
+
+One app per commit when possible. Repo-wide changes (CI, docs outside any app, `repository.yaml`) use a normal imperative subject instead.
+
 ## Existing apps
 
 | App | Agent instructions | Pattern |

@@ -14,3 +14,7 @@ Then replace this file with app-specific agent instructions (pattern, key files,
 This scaffold is a **native** in-container service (s6 + bashio), similar in packaging to [home-assistant/apps-example](https://github.com/home-assistant/apps-example). It is not a host Docker wrapper.
 
 If the new app needs `docker_api` / privileged host containers, follow `rancher/` instead of this runtime pattern, and document Protection mode and unsupported-HAOS warnings in `DOCS.md`.
+
+## Versioning
+
+When shipping changes: bump `version` in `config.yaml`, add a section to `CHANGELOG.md`, and use that section as the git commit message (see root [AGENTS.md](../../AGENTS.md#app-changes-changelog-and-commits)).

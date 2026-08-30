@@ -25,6 +25,7 @@ Target **Home Assistant OS** only. See [docs/HOME_ASSISTANT_ADRS.md](docs/HOME_A
 4. Shell scripts: `#!/usr/bin/with-contenv bashio`, LF line endings
 5. Update the apps table in root `README.md`
 6. Document security (Protection mode, privileged access) in that app’s `DOCS.md`
+7. For versioned app changes: update `<slug>/CHANGELOG.md` first; that entry is the git commit message
 
 ## Code style
 

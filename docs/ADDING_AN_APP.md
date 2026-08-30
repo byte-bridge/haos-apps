@@ -59,7 +59,7 @@ Scripts must use `#!/usr/bin/with-contenv bashio` and LF line endings.
 - `AGENTS.md` — agent instructions for this app (from the template; fill in pattern and key files)
 - `README.md` — short intro shown in the app store
 - `DOCS.md` — full user documentation
-- `CHANGELOG.md` — version history
+- `CHANGELOG.md` — version history ([Keep a Changelog](https://keepachangelog.com/)); the new section is also the git commit message when you ship the change
 - `translations/en.yaml` — UI label translations for config options
 
 ### 5. Assets
